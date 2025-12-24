@@ -623,8 +623,8 @@
     </div>
     <div id="canvas-container"></div>
     <div id="title-container">
-        <h1 id="display-line1" class="title-line">Merry</h1>
-        <h1 id="display-line2" class="title-line">Christmas</h1>
+        <h1 id="display-line1" class="title-line">窦雅婷</h1>
+        <h1 id="display-line2" class="title-line">Merry Christmas</h1>
     </div>
     <div id="ui-layer">
         <div id="top-right-controls"><button class="elegant-btn glass-panel" id="fs-btn" onclick="toggleFullScreen()"
@@ -838,7 +838,7 @@
         window.toggleUI = () => { STATE.uiVisible = !STATE.uiVisible; document.getElementById('left-sidebar').classList.toggle('panel-hidden', !STATE.uiVisible); document.querySelector('.bottom-left-panel').classList.toggle('panel-hidden', !STATE.uiVisible); };
         window.toggleCameraDisplay = () => { STATE.cameraVisible = !STATE.cameraVisible; document.getElementById('webcam-wrapper').classList.toggle('camera-hidden', !STATE.cameraVisible); };
         window.toggleFullScreen = () => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); };
-        function loadTextConfig() { const s = JSON.parse(localStorage.getItem('v16_text_config')); if (s) { document.getElementById('input-line1').value = s.line1 || ""; document.getElementById('input-line2').value = s.line2 || ""; document.getElementById('font-select').value = s.fontKey || "style1"; document.getElementById('slider-fontsize').value = s.size || 100; document.getElementById('color-picker').value = s.color || "#fceea7"; applyTextConfig(s.fontKey, s.line1, s.line2, s.size, s.color); } else { document.getElementById('input-line1').value = "Merry"; document.getElementById('input-line2').value = "Christmas"; applyTextConfig("style1", "Merry", "Christmas", 100, "#fceea7"); } }
+        function loadTextConfig() { const s = JSON.parse(localStorage.getItem('v16_text_config')); if (s) { document.getElementById('input-line1').value = s.line1 || ""; document.getElementById('input-line2').value = s.line2 || ""; document.getElementById('font-select').value = s.fontKey || "style1"; document.getElementById('slider-fontsize').value = s.size || 100; document.getElementById('color-picker').value = s.color || "#fceea7"; applyTextConfig(s.fontKey, s.line1, s.line2, s.size, s.color); } else { document.getElementById('input-line1').value = "窦雅婷"; document.getElementById('input-line2').value = "Merry Christmas"; applyTextConfig("style1", "窦雅婷", "Merry Christmas", 100, "#fceea7"); } }
         window.updateTextConfig = () => { const k = document.getElementById('font-select').value, l1 = document.getElementById('input-line1').value, l2 = document.getElementById('input-line2').value, s = document.getElementById('slider-fontsize').value, c = document.getElementById('color-picker').value; localStorage.setItem('v16_text_config', JSON.stringify({ fontKey: k, line1: l1, line2: l2, size: s, color: c })); applyTextConfig(k, l1, l2, s, c); };
         function applyTextConfig(k, l1, l2, s, c) { const st = FONT_STYLES[k] || FONT_STYLES['style1']; const t1 = document.getElementById('display-line1'), t2 = document.getElementById('display-line2'), ct = document.getElementById('title-container'); ct.style.fontFamily = st.font; t1.innerText = l1; t2.innerText = l2; t1.style.letterSpacing = st.spacing; t2.style.letterSpacing = st.spacing; t1.style.textShadow = st.shadow; t2.style.textShadow = st.shadow; t1.style.textTransform = st.transform; t2.style.textTransform = st.transform; t1.style.color = c; t2.style.color = c; t1.style.fontSize = (0.48 * s) + "px"; t2.style.fontSize = (0.48 * s) + "px"; }
 
