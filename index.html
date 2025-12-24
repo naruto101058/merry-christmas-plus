@@ -648,7 +648,7 @@
                 <div class="control-row">
                     <div class="ui-title-sub" style="margin-top:6px;">大小 & 颜色</div>
                     <div style="display:flex; gap:8px; align-items:center;"><input type="range" min="50" max="250"
-                            value="100" id="slider-fontsize" oninput="updateTextConfig()"><input type="color"
+                            value="140" id="slider-fontsize" oninput="updateTextConfig()"><input type="color"
                             id="color-picker" value="#fceea7" oninput="updateTextConfig()"
                             style="width:30px; height:20px; border:none;"></div>
                 </div>
@@ -838,7 +838,7 @@
         window.toggleUI = () => { STATE.uiVisible = !STATE.uiVisible; document.getElementById('left-sidebar').classList.toggle('panel-hidden', !STATE.uiVisible); document.querySelector('.bottom-left-panel').classList.toggle('panel-hidden', !STATE.uiVisible); };
         window.toggleCameraDisplay = () => { STATE.cameraVisible = !STATE.cameraVisible; document.getElementById('webcam-wrapper').classList.toggle('camera-hidden', !STATE.cameraVisible); };
         window.toggleFullScreen = () => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); };
-        function loadTextConfig() { const s = JSON.parse(localStorage.getItem('v16_text_config')); if (s) { document.getElementById('input-line1').value = s.line1 || ""; document.getElementById('input-line2').value = s.line2 || ""; document.getElementById('font-select').value = s.fontKey || "style1"; document.getElementById('slider-fontsize').value = s.size || 100; document.getElementById('color-picker').value = s.color || "#fceea7"; applyTextConfig(s.fontKey, s.line1, s.line2, s.size, s.color); } else { document.getElementById('input-line1').value = "窦雅婷"; document.getElementById('input-line2').value = "Merry Christmas"; applyTextConfig("style1", "窦雅婷", "Merry Christmas", 100, "#fceea7"); } }
+        function loadTextConfig() { const s = JSON.parse(localStorage.getItem('v16_text_config')); if (s) { document.getElementById('input-line1').value = s.line1 || ""; document.getElementById('input-line2').value = s.line2 || ""; document.getElementById('font-select').value = s.fontKey || "style1"; document.getElementById('slider-fontsize').value = s.size || 140; document.getElementById('color-picker').value = s.color || "#fceea7"; applyTextConfig(s.fontKey, s.line1, s.line2, s.size || 140, s.color || "#fceea7"); } else { document.getElementById('input-line1').value = "窦雅婷"; document.getElementById('input-line2').value = "Merry Christmas"; document.getElementById('font-select').value = "style1"; document.getElementById('slider-fontsize').value = 140; document.getElementById('color-picker').value = "#fceea7"; applyTextConfig("style1", "窦雅婷", "Merry Christmas", 140, "#fceea7"); } }
         window.updateTextConfig = () => { const k = document.getElementById('font-select').value, l1 = document.getElementById('input-line1').value, l2 = document.getElementById('input-line2').value, s = document.getElementById('slider-fontsize').value, c = document.getElementById('color-picker').value; localStorage.setItem('v16_text_config', JSON.stringify({ fontKey: k, line1: l1, line2: l2, size: s, color: c })); applyTextConfig(k, l1, l2, s, c); };
         function applyTextConfig(k, l1, l2, s, c) { const st = FONT_STYLES[k] || FONT_STYLES['style1']; const t1 = document.getElementById('display-line1'), t2 = document.getElementById('display-line2'), ct = document.getElementById('title-container'); ct.style.fontFamily = st.font; t1.innerText = l1; t2.innerText = l2; t1.style.letterSpacing = st.spacing; t2.style.letterSpacing = st.spacing; t1.style.textShadow = st.shadow; t2.style.textShadow = st.shadow; t1.style.textTransform = st.transform; t2.style.textTransform = st.transform; t1.style.color = c; t2.style.color = c; t1.style.fontSize = (0.48 * s) + "px"; t2.style.fontSize = (0.48 * s) + "px"; }
 
@@ -983,8 +983,8 @@
         }
 
         class Particle {
-            constructor(m, t, d = false) { this.mesh = m; this.type = t; this.isDust = d; this.posTree = new THREE.Vector3(); this.posScatter = new THREE.Vector3(); this.baseScale = m.scale.x; this.photoId = null; const s = (t === 'PHOTO') ? 0.3 : 2.0; this.spinSpeed = new THREE.Vector3((Math.random() - 0.5) * s, (Math.random() - 0.5) * s, (Math.random() - 0.5) * s); this.calcPos(); }
-            calcPos() { const h = CONFIG.particles.treeHeight; let t = Math.pow(Math.random(), 0.8); const y = (t * h) - (h / 2); let rm = Math.max(0.5, CONFIG.particles.treeRadius * (1.0 - t)); const a = t * 50 * Math.PI + Math.random() * Math.PI; const r = rm * (0.8 + Math.random() * 0.4); this.posTree.set(Math.cos(a) * r, y, Math.sin(a) * r); let rs = this.isDust ? (12 + Math.random() * 20) : (8 + Math.random() * 12); const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1); this.posScatter.set(rs * Math.sin(ph) * Math.cos(th), rs * Math.sin(ph) * Math.sin(th), rs * Math.cos(ph)); }
+            constructor(m, t, d = false, index = null, totalCount = null) { this.mesh = m; this.type = t; this.isDust = d; this.index = index; this.totalCount = totalCount; this.posTree = new THREE.Vector3(); this.posScatter = new THREE.Vector3(); this.baseScale = m.scale.x; this.photoId = null; const s = (t === 'PHOTO') ? 0.3 : 2.0; this.spinSpeed = new THREE.Vector3((Math.random() - 0.5) * s, (Math.random() - 0.5) * s, (Math.random() - 0.5) * s); this.calcPos(); }
+            calcPos() { const h = CONFIG.particles.treeHeight; if (!this.isDust && this.type !== 'PHOTO' && this.index !== null && this.totalCount !== null) { const arms = 3; const branchIndex = this.index % arms; const levelIndex = Math.floor(this.index / arms); const levels = Math.max(1, Math.ceil(this.totalCount / arms)); const t = levels > 1 ? levelIndex / (levels - 1) : 0; const baseRadius = CONFIG.particles.treeRadius; const y = (t * h) - (h / 2); const radius = baseRadius * (1.0 - t * 0.95); const turns = 6; const angle = turns * 2 * Math.PI * t + (branchIndex * 2 * Math.PI / arms); const x = radius * Math.cos(angle); const z = radius * Math.sin(angle); this.posTree.set(x, y, z); } else { let t = Math.pow(Math.random(), 0.8); const y = (t * h) - (h / 2); let rm = Math.max(0.5, CONFIG.particles.treeRadius * (1.0 - t)); const a = t * 50 * Math.PI + Math.random() * Math.PI; const r = rm * (0.8 + Math.random() * 0.4); this.posTree.set(Math.cos(a) * r, y, Math.sin(a) * r); } let rs = this.isDust ? (12 + Math.random() * 20) : (8 + Math.random() * 12); const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1); this.posScatter.set(rs * Math.sin(ph) * Math.cos(th), rs * Math.sin(ph) * Math.sin(th), rs * Math.cos(ph)); }
             update(dt, mode, ft) {
                 let tg = this.posTree; let u = 0; if (mode === 'SCATTER') tg = this.posScatter; else if (mode === 'FOCUS') { if (this.mesh === ft) { let off = new THREE.Vector3(0, 1, 38); if (STATE.focusType === 1) off.set(-4, 2, 35); else if (STATE.focusType === 2) off.set(3, 0, 32); else if (STATE.focusType === 3) off.set(0, -2.5, 30); const im = new THREE.Matrix4().copy(mainGroup.matrixWorld).invert(); tg = off.applyMatrix4(im); } else tg = this.posScatter; } else if (mode === 'GALLERY') { if (this.type === 'PHOTO') { const R = STATE.gallery.radius; const band = STATE.gallery.band; const H = STATE.gallery.height; u = clock.elapsedTime * STATE.gallery.speed + (this.galleryUBase || 0); const v = (this.galleryV || 0); const x = (R + v * Math.cos(u * 0.5)) * Math.cos(u); const y = v * Math.sin(u * 0.5) * H; const z = (R + v * Math.cos(u * 0.5)) * Math.sin(u); tg = new THREE.Vector3(x, y, z); } else tg = this.posScatter; }
                 const ls = (mode === 'FOCUS' && this.mesh === ft) ? 8.0 : 4.0; this.mesh.position.lerp(tg, ls * dt);
@@ -996,16 +996,50 @@
         }
 
         function createParticles() {
-            const sg = new THREE.SphereGeometry(0.5, 32, 32); const bg = new THREE.BoxGeometry(0.55, 0.55, 0.55); const c = new THREE.CatmullRomCurve3([new THREE.Vector3(0, -0.5, 0), new THREE.Vector3(0, 0.3, 0), new THREE.Vector3(0.1, 0.5, 0), new THREE.Vector3(0.3, 0.4, 0)]); const cg = new THREE.TubeGeometry(c, 16, 0.08, 8, false);
-            const baseGm = new THREE.MeshStandardMaterial({ color: CONFIG.colors.champagneGold, metalness: 1, roughness: 0.15, envMapIntensity: 1.2, emissive: 0x223344, emissiveIntensity: 0.25 });
-            const baseGrm = new THREE.MeshStandardMaterial({ color: CONFIG.colors.deepGreen, metalness: 0.2, roughness: 0.85, emissive: 0x112233, emissiveIntensity: 0.18 });
-            const baseRm = new THREE.MeshPhysicalMaterial({ color: CONFIG.colors.accentRed, metalness: 0.25, roughness: 0.25, clearcoat: 1, emissive: 0x112233 });
-            const cm = new THREE.MeshStandardMaterial({ map: caneTexture, roughness: 0.4 });
-            for (let i = 0; i < CONFIG.particles.count; i++) {
+            const sg = new THREE.SphereGeometry(0.5, 32, 32);
+            const bg = new THREE.BoxGeometry(0.55, 0.55, 0.55);
+            const c = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(0, -0.5, 0),
+                new THREE.Vector3(0, 0.3, 0),
+                new THREE.Vector3(0.1, 0.5, 0),
+                new THREE.Vector3(0.3, 0.4, 0)
+            ]);
+            const cg = new THREE.TubeGeometry(c, 16, 0.08, 8, false);
+
+            const baseGm = new THREE.MeshStandardMaterial({
+                color: CONFIG.colors.champagneGold,
+                metalness: 1,
+                roughness: 0.15,
+                envMapIntensity: 1.2,
+                emissive: 0x223344,
+                emissiveIntensity: 0.25
+            });
+            const baseGrm = new THREE.MeshStandardMaterial({
+                color: CONFIG.colors.deepGreen,
+                metalness: 0.2,
+                roughness: 0.85,
+                emissive: 0x112233,
+                emissiveIntensity: 0.18
+            });
+            const baseRm = new THREE.MeshPhysicalMaterial({
+                color: CONFIG.colors.accentRed,
+                metalness: 0.25,
+                roughness: 0.25,
+                clearcoat: 1,
+                emissive: 0x112233
+            });
+            const cm = new THREE.MeshStandardMaterial({
+                map: caneTexture,
+                roughness: 0.4
+            });
+
+            const total = CONFIG.particles.count;
+            for (let i = 0; i < total; i++) {
                 const r = Math.random();
                 const col = ACTIVE_PALETTE[Math.floor(Math.random() * ACTIVE_PALETTE.length)];
                 const emColor = new THREE.Color(col).multiplyScalar(0.35);
                 let m, t;
+
                 if (r < 0.4) {
                     const mat = baseGrm.clone();
                     mat.color.setHex(col);
@@ -1034,11 +1068,12 @@
                     m = new THREE.Mesh(cg, cm);
                     t = 'CANE';
                 }
+
                 const s = 0.4 + Math.random() * 0.5;
                 m.scale.set(s, s, s);
                 m.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
                 mainGroup.add(m);
-                particleSystem.push(new Particle(m, t, false));
+                particleSystem.push(new Particle(m, t, false, i, total));
             }
             if (CONFIG.showTopStar) {
                 const spikes = 5, outer = 1.1, inner = 0.5; const shape = new THREE.Shape(); for (let i = 0; i < spikes * 2; i++) { const r = (i % 2 === 0) ? outer : inner; const a = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2; const x = Math.cos(a) * r; const y = Math.sin(a) * r; if (i === 0) shape.moveTo(x, y); else shape.lineTo(x, y); } shape.closePath(); const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.15, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.05, bevelThickness: 0.05 }); geo.center(); const mat = new THREE.MeshStandardMaterial({ color: 0xcfe9ff, emissive: 0x8fd2ff, emissiveIntensity: 1, metalness: 1, roughness: 0.2 }); const st = new THREE.Mesh(geo, mat); st.position.set(0, CONFIG.particles.treeHeight / 2 + 1.2, 0); mainGroup.add(st); const glowMat = new THREE.SpriteMaterial({ map: haloTexture, color: 0xffffff, transparent: true, opacity: 1.0, blending: THREE.AdditiveBlending, depthWrite: false }); const glow = new THREE.Sprite(glowMat); glow.scale.set(3, 3, 1); glow.position.copy(st.position); mainGroup.add(glow);
